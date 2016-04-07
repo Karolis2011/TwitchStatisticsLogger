@@ -19,7 +19,7 @@ var database = {
   title: [],
 };
 function loadDatabase(){
-  var databaseString = fs.readFileSync(databaseFilename, 'utf-8')
+  var databaseString = fs.readFileSync(databaseFilename, 'utf-8');
   if (databaseString){
     database = JSON.parse(databaseString);
   }
@@ -53,29 +53,6 @@ app.get('/', function(req, res) {
       graphdata.push([date, value]);
     }
   }
-
-  /*fs.readFile('data.csv', 'utf-8' , function (err,data) {
-    if (err) {
-      return console.log(err);
-    }
-    //console.log(data);
-    var lines = data.split("\r\n");
-    //console.log(lines);
-    for (var line in lines) {
-      if (lines.hasOwnProperty(line)) {
-        //console.log(lines[line]);
-        var ddata = lines[line].split(",");
-        var date = new Date(Number(ddata[0]));
-        var views = Number(ddata[3]);
-        //var totalViews = ddata[4];
-        //var followers = ddata[5];
-        var convData = [date.toTimeString(), views];
-        //var convData = "[" + date.toTimeString() + ", " + views + "]";
-        graphdata.push(convData);
-        //console.log(ddata);
-      }
-    }
-  });*/
   res.render('index', {title: 'Hello Auto', message: 'Date: ' + new Date().getTime(), data: graphdata});
 });
 

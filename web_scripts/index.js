@@ -27,7 +27,7 @@ function drawBackgroundColor() {
       vAxis: {
         title: 'Viewers'
       },
-      backgroundColor: '#f1f8e9'
+      backgroundColor: '#ffffff'
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('graph'));

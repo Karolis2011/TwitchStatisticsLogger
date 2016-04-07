@@ -84,17 +84,6 @@ function update() {
       console.log(workName + ' ' + dataToPush);
 
       saveDatabase();
-      /*
-      //console.log(data);
-      var CSVSep = "§";
-      var CSVdata = new Date().getTime() + CSVSep + data.stream.channel.status + CSVSep + data.stream.channel.game + CSVSep + data.stream.viewers + CSVSep + data.stream.channel.views + CSVSep + data.stream.channel.followers + "\r\n";
-      CSVdata = CSVdata.replace(/,/g, '');
-      CSVdata = CSVdata.replace(/§/g, ',');
-      console.log("Data: " + CSVdata);
-      fs.appendFile('data.csv', CSVdata, function (err) {
-        //console.log("Error while updating data. " + err);
-      });
-      */
     }
   })
 }

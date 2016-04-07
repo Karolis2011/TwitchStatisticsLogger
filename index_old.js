@@ -1,3 +1,5 @@
+// Old logger code
+
 var request = require('request');
 var fs = require('fs');
 
