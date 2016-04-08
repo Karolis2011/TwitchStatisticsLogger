@@ -9,10 +9,16 @@ var database = {
   title: [],
 };
 function loadDatabase(){
-  var databaseString = fs.readFileSync(databaseFilename, 'utf-8');
-  if (databaseString){
-    database = JSON.parse(databaseString);
-  }
+  fs.access(databaseFilename, fs.F_OK, function(err) {
+    if (!err) {
+      var databaseString = fs.readFileSync(databaseFilename, 'utf-8');
+      if (databaseString){
+        database = JSON.parse(databaseString);
+      }
+    } else {
+      saveDatabase();
+    }
+  });
 }
 function saveDatabase() {
   fs.writeFile(databaseFilename, JSON.stringify(database), 'utf8', function (err) {
@@ -32,10 +38,21 @@ function getLastValue(db){
       if(database[db][i][1]){
         return database[db][i][1];
       }
-    } else {
-      return -1;
     }
   }
+  return -1;
+}
+
+function addToDatabase(workName, val, date) {
+  if(typeof val === 'string' || val instanceof String){
+    var lastVal = getLastValue(workName);
+    if(val == lastVal){
+      val = null;
+    }
+  }
+  var dataToPush = [date, val];
+  database[workName].push(dataToPush);
+  //console.log(workName + ' ' + lastVal);
 }
 
 function update() {
@@ -43,49 +60,29 @@ function update() {
     if (!error && response.statusCode == 200) {
       var data = JSON.parse(body);
       var date = new Date().getTime();
-      var workName = "views";
-      var lastVal = getLastValue(workName);
-      var valToPush = data.stream.viewers;
-      if(valToPush == lastVal){
-        valToPush = null;
+      if(data.stream){
+        addToDatabase("views", data.stream.viewers, date);
+        addToDatabase("totalViewers", data.stream.channel.views, date);
+        addToDatabase("followers", data.stream.channel.followers, date);
+        addToDatabase("title", data.stream.channel.status, date);
+        saveDatabase();
+      } else {
+        request('https://api.twitch.tv/kraken/channels/automateallthethings', function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            var data = JSON.parse(body);
+            var date = new Date().getTime();
+            addToDatabase("views", 0, date);
+            addToDatabase("totalViewers", data.views, date);
+            addToDatabase("followers", data.followers, date);
+            addToDatabase("title", data.status, date);
+            saveDatabase();
+          }
+        });
       }
-      dataToPush = [date, valToPush];
-      database[workName].push(dataToPush);
-      console.log(workName + ' ' + dataToPush);
 
-      workName = "totalViewers";
-      lastVal = getLastValue(workName);
-      valToPush = data.stream.channel.views;
-      if(valToPush == lastVal){
-        valToPush = null;
-      }
-      dataToPush = [date, valToPush];
-      database[workName].push(dataToPush);
-      console.log(workName + ' ' + dataToPush);
-
-      workName = "followers";
-      lastVal = getLastValue(workName);
-      valToPush = data.stream.channel.followers;
-      if(valToPush == lastVal){
-        valToPush = null;
-      }
-      dataToPush = [date, valToPush];
-      database[workName].push(dataToPush);
-      console.log(workName + ' ' + dataToPush);
-
-      workName = "title";
-      lastVal = getLastValue(workName);
-      valToPush = data.stream.channel.status;
-      if(valToPush == lastVal){
-        valToPush = null;
-      }
-      dataToPush = [date, valToPush];
-      database[workName].push(dataToPush);
-      console.log(workName + ' ' + dataToPush);
-
-      saveDatabase();
+      
     }
-  })
+  });
 }
-
-setInterval(update, 5000);
+loadDatabase();
+setInterval(update, 6000);

@@ -1,9 +1,10 @@
 html
   head
+    meta(charset='utf-8')
     title= title
-    script.
-      var graphdata=!{JSON.stringify(data)};
     script(type='text/javascript', src='https://www.gstatic.com/charts/loader.js')
     script(type='text/javascript', src='/scripts/index.js')
   body
-    div#graph
+    div#graphViewer
+    div#graphViews
+    div#graphFollowers

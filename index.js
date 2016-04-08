@@ -2,10 +2,11 @@ var express = require('express');
 var fs = require('fs');
 const spawn = require('child_process').spawn;
 var app = express();
+
 var logger = spawn('node', ['logger.js']);
 
 logger.stdout.on('data', (data) => {
-  console.log(`${data}`);
+  //console.log(`${data}`);
 });
 logger.stderr.on('data', (data) => {
   console.log(`${data}`);
@@ -19,10 +20,16 @@ var database = {
   title: [],
 };
 function loadDatabase(){
-  var databaseString = fs.readFileSync(databaseFilename, 'utf-8');
-  if (databaseString){
-    database = JSON.parse(databaseString);
-  }
+  fs.access(databaseFilename, fs.F_OK, function(err) {
+    if (!err) {
+      var databaseString = fs.readFileSync(databaseFilename, 'utf-8');
+      if (databaseString){
+        database = JSON.parse(databaseString);
+      }
+    } else {
+      saveDatabase();
+    }
+  });
 }
 function saveDatabase() {
   fs.writeFile(databaseFilename, JSON.stringify(database), 'utf8', function (err) {
@@ -36,26 +43,46 @@ fs.watchFile(databaseFilename, function (curr, prev) {
   loadDatabase();
 });
 
-
-app.set('view engine', 'jade');
-app.use('/scripts', express.static(__dirname + '/web_scripts'));
-
-app.get('/', function(req, res) {
+function getGraphDataForOutput(id) {
   var graphdata = [];
 
-  for (var view in database["views"]) {
-    if (database["views"].hasOwnProperty(view)) {
-      var value = database["views"][view][1];
-      var date = database["views"][view][0];
+  for (var view in database[id]) {
+    if (database[id].hasOwnProperty(view)) {
+      var value = database[id][view][1];
+      var date = database[id][view][0];
       if (value == null){
         value = graphdata[graphdata - 1][1];
       }
       graphdata.push([date, value]);
     }
   }
-  res.render('index', {title: 'Hello Auto', message: 'Date: ' + new Date().getTime(), data: graphdata});
+  return graphdata;
+}
+
+app.set('view engine', 'jade');
+app.use('/scripts', express.static(__dirname + '/web_scripts'));
+
+app.get('/', function(req, res) {
+  
+  res.render('index', {title: 'Hello Auto'});
 });
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+app.get('/data/:name', function(req, res) {
+    if(req.params.name == "views"){
+      res.set('Content-Type', 'text/json');
+      res.send(JSON.stringify(getGraphDataForOutput("views")));
+    }
+    if(req.params.name == "totalViewers"){
+      res.set('Content-Type', 'text/json');
+      res.send(JSON.stringify(getGraphDataForOutput("totalViewers")));
+    }
+    if(req.params.name == "followers"){
+      res.set('Content-Type', 'text/json');
+      res.send(JSON.stringify(getGraphDataForOutput("followers")));
+    }
+});
+
+loadDatabase();
+app.listen(process.env.PORT, function () {
+  console.log(`Example app listening on port ${process.env.PORT}!`);
 });
