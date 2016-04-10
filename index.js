@@ -43,8 +43,8 @@ fs.watchFile(databaseFilename, function (curr, prev) {
   loadDatabase();
 });
 
-function getGraphDataForOutput(id) {
-  var graphdata = [];
+function getGraphDataForOutput(id, amount) {
+  /*var graphdata = [];
 
   for (var view in database[id]) {
     if (database[id].hasOwnProperty(view)) {
@@ -56,29 +56,31 @@ function getGraphDataForOutput(id) {
       graphdata.push([date, value]);
     }
   }
-  return graphdata;
+  return graphdata;*/
+  return database[id].slice(Math.max(database[id].length - amount, 1));
 }
 
 app.set('view engine', 'jade');
 app.use('/scripts', express.static(__dirname + '/web_scripts'));
+app.use('/css', express.static(__dirname + '/web_style'));
 
 app.get('/', function(req, res) {
   
-  res.render('index', {title: 'Hello Auto'});
+  res.render('index', {title: 'Hello World!'});
 });
 
 app.get('/data/:name', function(req, res) {
     if(req.params.name == "views"){
       res.set('Content-Type', 'text/json');
-      res.send(JSON.stringify(getGraphDataForOutput("views")));
+      res.send(JSON.stringify(getGraphDataForOutput("views", 3000)));
     }
     if(req.params.name == "totalViewers"){
       res.set('Content-Type', 'text/json');
-      res.send(JSON.stringify(getGraphDataForOutput("totalViewers")));
+      res.send(JSON.stringify(getGraphDataForOutput("totalViewers", 3000)));
     }
     if(req.params.name == "followers"){
       res.set('Content-Type', 'text/json');
-      res.send(JSON.stringify(getGraphDataForOutput("followers")));
+      res.send(JSON.stringify(getGraphDataForOutput("followers", 3000)));
     }
 });
 

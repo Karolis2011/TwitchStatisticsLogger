@@ -2,9 +2,14 @@ html
   head
     meta(charset='utf-8')
     title= title
+    link(rel="stylesheet", type="text/css", href="css/index.css")
     script(type='text/javascript', src='https://www.gstatic.com/charts/loader.js')
     script(type='text/javascript', src='/scripts/index.js')
   body
-    div#graphViewer
-    div#graphViews
-    div#graphFollowers
+    div.graph#graphViewer 
+      span.loadingText Loading...
+    div.graph#graphViews 
+      span.loadingText Loading...
+    div.graph#graphFollowers 
+      span.loadingText Loading...
+    a(href="https://github.com/Karolis2011/TwitchStatisticsLogger") Source code!

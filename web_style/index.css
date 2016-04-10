@@ -1,0 +1,10 @@
+.graph {
+    height: 32%;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.loadingText {
+    display: inline-block;
+    margin-top: 16%;
+}

@@ -85,4 +85,4 @@ function update() {
   });
 }
 loadDatabase();
-setInterval(update, 6000);
+setInterval(update, 12000);
